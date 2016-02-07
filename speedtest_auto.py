@@ -2,7 +2,10 @@
 import re
 import subprocess
 import time
+import os.path
+from uuid import getnode as get_mac
 
+user = "anonymous"
 line=subprocess.check_output("speedtest-cli")
 
 getDown = re.search( r'Download: ([0-9]{2}\.[0-9]{2})', line, re.M|re.I)
@@ -12,21 +15,33 @@ if getDown:
 	dSpeed =  getDown.group(1)
 else:
 	dSpeed = "No Download!!"
+
 if getUp:
 	uSpeed = getUp.group(1)
 else:
 	uSpeed = "No Upload!!"
 
-time = time.strftime("%d/%m/%Y:%H:%M:%S")
+date = time.strftime("%d/%m/%Y")
+hour = time.strftime("%H:%M:%S")
+time = time.strftime("%H:%M:%S")
 
-print "Date + Time:" + time
+print "Date + Time: " + date + " " + hour
 print "Download Speed:" + dSpeed
 print "Upload Speed:" + uSpeed
 
-fd = open('speedlog.csv','a')
-fd.write('\n' + time + "," + dSpeed + "," + uSpeed)
-fd.close()
+mac = get_mac()
 
+## write in file
+
+filelog = 'speedlog.csv'
+exists = os.path.isfile(filelog)
+fd = open(filelog,'a')
+
+if not exists:
+ fd.write("Date, Hour, dSpeed, USpeed, MAC, User")
+
+fd.write('\n' + date + "," + hour + "," + dSpeed + "," + uSpeed + "," + str(mac) + "," + user)
+fd.close()
 
 
 ## Sources:
